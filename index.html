@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>미니 게임 모음 인덱스</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 420px;
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 26px;
+        }
+        p.subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .game-btn {
+            padding: 15px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .game-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .game-btn span.icon {
+            font-size: 24px;
+        }
+        .omok { background-color: #e67e22; }
+        .omok:hover { background-color: #d35400; }
+        
+        .baduk { background-color: #d35400; }
+        .baduk:hover { background-color: #b53e00; }
+
+        .dice { background-color: #27ae60; }
+        .dice:hover { background-color: #219653; }
+
+        .rps { background-color: #8e44ad; }
+        .rps:hover { background-color: #732d91; }
+
+        .muk { background-color: #f39c12; }
+        .muk:hover { background-color: #d68910; }
+
+        .ladder { background-color: #2980b9; }
+        .ladder:hover { background-color: #2471a3; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎮 미니 게임 모음</h1>
+        <p class="subtitle">원하는 게임을 선택하여 즐겨보세요!</p>
+        
+        <div class="menu-grid">
+            <a href="omok.html" class="game-btn omok">
+                <span class="icon">⚫</span>
+                오목 게임
+            </a>
+            <a href="baduk.html" class="game-btn baduk">
+                <span class="icon">⚪</span>
+                바둑 게임
+            </a>
+            <a href="dice.html" class="game-btn dice">
+                <span class="icon">🎲</span>
+                주사위 던지기
+            </a>
+            <a href="rps.html" class="game-btn rps">
+                <span class="icon">✌️</span>
+                가위바위보
+            </a>
+            <a href="muk찌ppa.html" class="game-btn muk">
+                <span class="icon">✊</span>
+                묵찌빠 게임
+            </a>
+            <a href="ladder.html" class="game-btn ladder">
+                <span class="icon">🪜</span>
+                사다리 타기
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
