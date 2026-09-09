@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주사위 던지기 미니게임</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .dice-box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .dice {
+            width: 70px;
+            height: 70px;
+            background-color: #fff;
+            border: 3px solid #333;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .shake {
+            animation: shakeDice 0.4s ease;
+        }
+        @keyframes shakeDice {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+            75% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+            min-height: 27px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .history {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+            max-height: 80px;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🎲 주사위 던지기</h2>
+        <div id="result">주사위를 던져보세요!</div>
+        
+        <div class="dice-box">
+            <div id="dice1" class="dice">?</div>
+            <div id="dice2" class="dice">?</div>
+        </div>
+
+        <button onclick="rollDice()">주사위 던지기</button>
+        
+        <div class="history" id="history">
+            <strong>최근 기록</strong>
+            <div id="historyList">기록이 없습니다.</div>
+        </div>
+    </div>
+
+    <script>
+        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        let historyArr = [];
+
+        function rollDice() {
+            const dice1Elem = document.getElementById('dice1');
+            const dice2Elem = document.getElementById('dice2');
+            const resultElem = document.getElementById('result');
+            const historyList = document.getElementById('historyList');
+
+            // 애니메이션 클래스 추가
+            dice1Elem.classList.add('shake');
+            dice2Elem.classList.add('shake');
+            resultElem.innerText = "굴리는 중...";
+
+            setTimeout(() => {
+                // 1부터 6까지 무작위 숫자 생성
+                let d1 = Math.floor(Math.random() * 6) + 1;
+                let d2 = Math.floor(Math.random() * 6) + 1;
+                let sum = d1 + d2;
+
+                // 눈금 아이콘 또는 숫자로 표시
+                dice1Elem.innerText = d1;
+                dice2Elem.innerText = d2;
+
+                // 결과 출력
+                if (d1 === d2) {
+                    resultElem.innerText = `더블! 합계: ${sum} 🎉`;
+                } else {
+                    resultElem.innerText = `합계: ${sum} (주사위: ${d1}, ${d2})`;
+                }
+
+                // 기록 추가 (최대 5개 유지)
+                historyArr.unshift(`${d1} + ${d2} = ${sum}`);
+                if (historyArr.length > 5) historyArr.pop();
+                
+                historyList.innerHTML = historyArr.join('<br>');
+
+                // 애니메이션 클래스 제거
+                dice1Elem.classList.remove('shake');
+                dice2Elem.classList.remove('shake');
+            }, 400);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>가위바위보 미니게임</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 340px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            background: #f0f4f8;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .battle-box {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 36px;
+        }
+        .player-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+        }
+        .choice-icon {
+            font-size: 45px;
+            margin-top: 5px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+            min-height: 27px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        button.choice-btn {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button.choice-btn:hover {
+            background-color: #0056b3;
+        }
+        .reset-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 8px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .reset-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>✌️ 가위바위보 게임</h2>
+        
+        <div class="scoreboard">
+            <div>승: <span id="wins">0</span></div>
+            <div>무: <span id="draws">0</span></div>
+            <div>패: <span id="losses">0</span></div>
+        </div>
+
+        <div id="result">버튼을 눌러 선택하세요!</div>
+
+        <div class="battle-box">
+            <div class="player-display">
+                <span>나</span>
+                <div id="playerChoice" class="choice-icon">❔</div>
+            </div>
+            <span>VS</span>
+            <div class="player-display">
+                <span>컴퓨터</span>
+                <div id="compChoice" class="choice-icon">❔</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="choice-btn" onclick="play('가위')">✌️ 가위</button>
+            <button class="choice-btn" onclick="play('바위')">✊ 바위</button>
+            <button class="choice-btn" onclick="play('보')">🖐️ 보</button>
+        </div>
+
+        <button class="reset-btn" onclick="resetStats()">전적 초기화</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let draws = 0;
+        let losses = 0;
+
+        const icons = {
+            '가위': '✌️',
+            '바위': '✊',
+            '보': '🖐️'
+        };
+
+        function play(playerSelection) {
+            const choices = ['가위', '바위', '보'];
+            const compSelection = choices[Math.floor(Math.random() * 3)];
+
+            document.getElementById('playerChoice').innerText = icons[playerSelection];
+            document.getElementById('compChoice').innerText = icons[compSelection];
+
+            const resultElem = document.getElementById('result');
+
+            if (playerSelection === compSelection) {
+                draws++;
+                resultElem.innerText = "비겼습니다! 🤝";
+                resultElem.style.color = "#6c757d";
+            } else if (
+                (playerSelection === '가위' && compSelection === '보') ||
+                (playerSelection === '바위' && compSelection === '가위') ||
+                (playerSelection === '보' && compSelection === '바위')
+            ) {
+                wins++;
+                resultElem.innerText = "이겼습니다! 🎉";
+                resultElem.style.color = "#28a745";
+            } else {
+                losses++;
+                resultElem.innerText = "졌습니다! 😢";
+                resultElem.style.color = "#dc3545";
+            }
+
+            document.getElementById('wins').innerText = wins;
+            document.getElementById('draws').innerText = draws;
+            document.getElementById('losses').innerText = losses;
+        }
+
+        function resetStats() {
+            wins = 0;
+            draws = 0;
+            losses = 0;
+            document.getElementById('wins').innerText = wins;
+            document.getElementById('draws').innerText = draws;
+            document.getElementById('losses').innerText = losses;
+            document.getElementById('playerChoice').innerText = '❔';
+            document.getElementById('compChoice').innerText = '❔';
+            const resultElem = document.getElementById('result');
+            resultElem.innerText = "버튼을 눌러 선택하세요!";
+            resultElem.style.color = "#007bff";
+        }
+    </script>
+</body>
+</html>

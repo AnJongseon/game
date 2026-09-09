@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>미니 오목 게임</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        #status {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        canvas {
+            background-color: #dcb35c;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>미니 오목 게임</h2>
+    <div id="status">흑돌(⚫) 차례입니다</div>
+    <canvas id="omokBoard" width="400" height="400"></canvas>
+    <button onclick="resetGame()">게임 다시 시작</button>
+
+    <script>
+        const canvas = document.getElementById('omokBoard');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+
+        const boardSize = 13; // 미니게임용 13x13 보드
+        const gridS = canvas.width / (boardSize + 1);
+        
+        let board = Array.from(Array(boardSize), () => Array(boardSize).fill(0));
+        let turn = 1; // 1: 흑(⚫), 2: 백(⚪)
+        let gameOver = false;
+
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 격자 선 그리기
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < boardSize; i++) {
+                let pos = gridS * (i + 1);
+                // 가로선
+                ctx.beginPath();
+                ctx.moveTo(gridS, pos);
+                ctx.lineTo(gridS * boardSize, pos);
+                ctx.stroke();
+                // 세로선
+                ctx.beginPath();
+                ctx.moveTo(pos, gridS);
+                ctx.lineTo(pos, gridS * boardSize);
+                ctx.stroke();
+            }
+
+            // 돌 그리기
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
+                    if (board[r][c] !== 0) {
+                        let x = gridS * (c + 1);
+                        let y = gridS * (r + 1);
+                        
+                        ctx.beginPath();
+                        ctx.arc(x, y, gridS * 0.4, 0, Math.PI * 2);
+                        ctx.fillStyle = board[r][c] === 1 ? '#000' : '#fff';
+                        ctx.fill();
+                        ctx.strokeStyle = '#000';
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // 클릭 이벤트 처리
+        canvas.addEventListener('click', function(event) {
+            if (gameOver) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            // 가장 가까운 교차점 찾기
+            let c = Math.round(mouseX / gridS) - 1;
+            let r = Math.round(mouseY / gridS) - 1;
+
+            if (r >= 0 && r < boardSize && c >= 0 && c < boardSize) {
+                if (board[r][c] === 0) {
+                    board[r][c] = turn;
+                    drawBoard();
+
+                    if (checkWin(r, c, turn)) {
+                        statusDiv.innerText = (turn === 1 ? '흑돌(⚫)' : '백돌(⚪)') + ' 승리!';
+                        gameOver = true;
+                        return;
+                    }
+
+                    turn = 3 - turn; // 턴 교체 (1 -> 2, 2 -> 1)
+                    statusDiv.innerText = (turn === 1 ? '흑돌(⚫)' : '백돌(⚪)') + ' 차례입니다';
+                }
+            }
+        });
+
+        // 승리 판정 함수
+        function checkWin(r, c, player) {
+            const directions = [
+                {dr: 0, dc: 1},   // 가로
+                {dr: 1, dc: 0},   // 세로
+                {dr: 1, dc: 1},   // 우하향 대각선
+                {dr: 1, dc: -1}   // 우상향 대각선
+            ];
+
+            for (let d of directions) {
+                let count = 1;
+                // 정방향
+                let nr = r + d.dr, nc = c + d.dc;
+                while (nr >= 0 && nr < boardSize && nc >= 0 && nc < boardSize && board[nr][nc] === player) {
+                    count++;
+                    nr += d.dr;
+                    nc += d.dc;
+                }
+                // 역방향
+                nr = r - d.dr; nc = c - d.dc;
+                while (nr >= 0 && nr < boardSize && nc >= 0 && nc < boardSize && board[nr][nc] === player) {
+                    count++;
+                    nr -= d.dr;
+                    nc -= d.dc;
+                }
+
+                if (count >= 5) return true;
+            }
+            return false;
+        }
+
+        function resetGame() {
+            board = Array.from(Array(boardSize), () => Array(boardSize).fill(0));
+            turn = 1;
+            gameOver = false;
+            statusDiv.innerText = '흑돌(⚫) 차례입니다';
+            drawBoard();
+        }
+
+        // 초기 실행
+        drawBoard();
+    </script>
+</body>
+</html>

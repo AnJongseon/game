@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사다리 타기 미니게임</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 480px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        canvas {
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #resultText {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🪜 사다리 타기</h2>
+        
+        <div class="input-group">
+            <label>참가자 이름 (쉼표로 구분)</label>
+            <input type="text" id="playersInput" value="철수, 영희, 민수, 지영">
+        </div>
+
+        <div class="input-group">
+            <label>결과 항목 (쉼표로 구분)</label>
+            <input type="text" id="resultsInput" value="당첨, 꽝, 꽝, 꽝">
+        </div>
+
+        <button onclick="startLadder()">사다리 시작하기</button>
+
+        <canvas id="ladderCanvas" width="430" height="250"></canvas>
+        <div id="resultText">참가자를 클릭해 결과를 확인하세요!</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('ladderCanvas');
+        const ctx = canvas.getContext('2d');
+        const resultText = document.getElementById('resultText');
+
+        let players = [];
+        let results = [];
+        let numCols = 0;
+        let ladderLines = []; // 가로선 정보
+
+        function startLadder() {
+            let pStr = document.getElementById('playersInput').value.trim();
+            let rStr = document.getElementById('resultsInput').value.trim();
+
+            players = pStr.split(',').map(s => s.trim());
+            results = rStr.split(',').map(s => s.trim());
+
+            if (players.length !== results.length) {
+                alert('참가자 수와 결과 항목의 개수가 일치해야 합니다!');
+                return;
+            }
+
+            numCols = players.length;
+            drawBaseLadder();
+        }
+
+        function drawBaseLadder() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ladderLines = [];
+
+            let colWidth = canvas.width / (numCols + 1);
+            let startY = 40;
+            let endY = 210;
+
+            // 세로선 그리기 및 상/하단 텍스트 배치
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.fillStyle = '#333';
+            ctx.font = '13px sans-serif';
+            ctx.textAlign = 'center';
+
+            for (let i = 0; i < numCols; i++) {
+                let x = colWidth * (i + 1);
+
+                // 세로선
+                ctx.beginPath();
+                ctx.moveTo(x, startY);
+                ctx.lineTo(x, endY);
+                ctx.stroke();
+
+                // 상단 이름
+                ctx.fillText(players[i], x, 25);
+                // 하단 결과
+                ctx.fillText(results[i], x, 235);
+            }
+
+            // 랜덤 가로선 생성 (각 열 사이마다)
+            let numRows = 5; // 사다리 단 수
+            let rowHeight = (endY - startY) / (numRows + 1);
+
+            for (let r = 1; r <= numRows; r++) {
+                let y = startY + rowHeight * r;
+                for (let i = 0; i < numCols - 1; i++) {
+                    // 50% 확률로 가로선 생성하되, 연속으로 붙지 않게 조정
+                    if (Math.random() < 0.5) {
+                        let x1 = colWidth * (i + 1);
+                        let x2 = colWidth * (i + 2);
+
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y);
+                        ctx.lineTo(x2, y);
+                        ctx.stroke();
+
+                        ladderLines.push({x1, x2, y, col: i});
+                    }
+                }
+            }
+        }
+
+        // 캔버스 클릭 시 해당 참가자의 사다리 결과 추적
+        canvas.addEventListener('click', function(event) {
+            if (numCols === 0) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            let colWidth = canvas.width / (numCols + 1);
+
+            // 클릭한 위치와 가장 가까운 세로선(참가자) 찾기
+            let clickedCol = -1;
+            let minDistance = 999;
+
+            for (let i = 0; i < numCols; i++) {
+                let x = colWidth * (i + 1);
+                let dist = Math.abs(mouseX - x);
+                if (dist < minDistance && dist < colWidth / 2) {
+                    minDistance = dist;
+                    clickedCol = i;
+                }
+            }
+
+            if (clickedCol !== -1) {
+                traceLadder(clickedCol);
+            }
+        });
+
+        function traceLadder(startCol) {
+            let colWidth = canvas.width / (numCols + 1);
+            let startY = 40;
+            let endY = 210;
+            let numRows = 5;
+            let rowHeight = (endY - startY) / (numRows + 1);
+
+            let currCol = startCol;
+            let currY = startY;
+
+            // Y 좌표 기준으로 가로선 정렬
+            let sortedLines = [...ladderLines].sort((a, b) => a.y - b.y);
+
+            // 시뮬레이션 경로 따라가기
+            let pathYValues = [];
+            for (let r = 1; r <= numRows; r++) {
+                let y = startY + rowHeight * r;
+                // 현재 Y보다 아래에 있는 가로선 확인
+                // 실제 구현 편의를 위해 위에서 아래로 가로선이 있는지 체크
+                let line = sortedLines.find(l => Math.abs(l.y - y) < 1 && (l.col === currCol || l.col === currCol - 1));
+                if (line) {
+                    if (line.col === currCol) {
+                        currCol++;
+                    } else if (line.col === currCol - 1) {
+                        currCol--;
+                    }
+                }
+            }
+
+            resultText.innerText = `결과: [${players[startCol]}] ➔ ${results[currCol]}`;
+        }
+
+        // 초기 실행
+        startLadder();
+    </script>
+</body>
+</html>

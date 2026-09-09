@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>묵찌빠 미니게임</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 360px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .turn-indicator {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+            background: #e9ecef;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        .battle-box {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 36px;
+        }
+        .player-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+        }
+        .choice-icon {
+            font-size: 45px;
+            margin-top: 5px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+            min-height: 27px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        button.choice-btn {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button.choice-btn:hover {
+            background-color: #e0a800;
+        }
+        .reset-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 8px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .reset-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>✊ 묵찌빠 게임</h2>
+        <div id="turnIndicator" class="turn-indicator">1단계: 가위바위보로 공격권을 정하세요!</div>
+        
+        <div id="result">아래 버튼을 선택하세요</div>
+
+        <div class="battle-box">
+            <div class="player-display">
+                <span>나</span>
+                <div id="playerChoice" class="choice-icon">❔</div>
+            </div>
+            <span>VS</span>
+            <div class="player-display">
+                <span>컴퓨터</span>
+                <div id="compChoice" class="choice-icon">❔</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="choice-btn" onclick="play('가위')">✌️ 가위</button>
+            <button class="choice-btn" onclick="play('바위')">✊ 묵(바위)</button>
+            <button class="choice-btn" onclick="play('보')">🖐️ 빠(보)</button>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">게임 다시 시작</button>
+    </div>
+
+    <script>
+        const choices = ['가위', '바위', '보'];
+        const icons = { '가위': '✌️', '바위': '✊', '보': '🖐️' };
+        
+        let gameState = 'RPS'; // 'RPS' (가위바위보 단계) 또는 'MUK_CHI_PPA' (묵찌빠 단계)
+        let currentAttacker = null; // 'player', 'comp', 또는 null
+
+        function play(playerSelection) {
+            const compSelection = choices[Math.floor(Math.random() * 3)];
+
+            document.getElementById('playerChoice').innerText = icons[playerSelection];
+            document.getElementById('compChoice').innerText = icons[compSelection];
+
+            const resultElem = document.getElementById('result');
+            const indicator = document.getElementById('turnIndicator');
+
+            if (gameState === 'RPS') {
+                // 가위바위보 단계
+                if (playerSelection === compSelection) {
+                    resultElem.innerText = "비겼습니다! 다시 가위바위보!";
+                    resultElem.style.color = "#6c757d";
+                } else if (
+                    (playerSelection === '가위' && compSelection === '보') ||
+                    (playerSelection === '바위' && compSelection === '가위') ||
+                    (playerSelection === '보' && compSelection === '바위')
+                ) {
+                    currentAttacker = 'player';
+                    gameState = 'MUK_CHI_PPA';
+                    indicator.innerText = "🔥 내 공격 차례입니다!";
+                    indicator.style.background = "#d4edda";
+                    resultElem.innerText = "가위바위보 승리! 공격권을 잡았습니다.";
+                    resultElem.style.color = "#28a745";
+                } else {
+                    currentAttacker = 'comp';
+                    gameState = 'MUK_CHI_PPA';
+                    indicator.innerText = "🚨 컴퓨터의 공격 차례입니다!";
+                    indicator.style.background = "#f8d7da";
+                    resultElem.innerText = "가위바위보 패배! 수비해야 합니다.";
+                    resultElem.style.color = "#dc3545";
+                }
+            } else {
+                // 묵찌빠 단계
+                if (playerSelection === compSelection) {
+                    if (currentAttacker === 'player') {
+                        resultElem.innerText = "내 공격 일치! 🎉 내가 최종 승리했습니다!";
+                        resultElem.style.color = "#28a745";
+                        indicator.innerText = "게임 종료 - 승리!";
+                        gameState = 'OVER';
+                    } else {
+                        resultElem.innerText = "컴퓨터 공격 일치! 😢 컴퓨터가 승리했습니다.";
+                        resultElem.style.color = "#dc3545";
+                        indicator.innerText = "게임 종료 - 패배!";
+                        gameState = 'OVER';
+                    }
+                } else {
+                    // 비기지 않은 경우, 승패에 따라 공격권 변경 판정
+                    let playerWinsRound = (
+                        (playerSelection === '가위' && compSelection === '보') ||
+                        (playerSelection === '바위' && compSelection === '가위') ||
+                        (playerSelection === '보' && compSelection === '바위')
+                    );
+
+                    if (playerWinsRound) {
+                        currentAttacker = 'player';
+                        indicator.innerText = "🔥 공격권 변경! 내 공격 차례입니다.";
+                        indicator.style.background = "#d4edda";
+                        resultElem.innerText = "내가 이겼으므로 공격권 획득!";
+                        resultElem.style.color = "#28a745";
+                    } else {
+                        currentAttacker = 'comp';
+                        indicator.innerText = "🚨 공격권 변경! 컴퓨터 공격 차례입니다.";
+                        indicator.style.background = "#f8d7da";
+                        resultElem.innerText = "컴퓨터가 이겼으므로 컴퓨터가 공격합니다.";
+                        resultElem.style.color = "#dc3545";
+                    }
+                }
+            }
+        }
+
+        function resetGame() {
+            gameState = 'RPS';
+            currentAttacker = null;
+            document.getElementById('playerChoice').innerText = '❔';
+            document.getElementById('compChoice').innerText = '❔';
+            document.getElementById('turnIndicator').innerText = "1단계: 가위바위보로 공격권을 정하세요!";
+            document.getElementById('turnIndicator').style.background = "#e9ecef";
+            const resultElem = document.getElementById('result');
+            resultElem.innerText = "아래 버튼을 선택하세요";
+            resultElem.style.color = "#007bff";
+        }
+    </script>
+</body>
+</html>
